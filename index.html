@@ -1,68 +1,114 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>NFC Beerpong</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #111;
-      color: white;
-      padding-top: 80px;
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a1a1a, #2c0f0f);
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.container {
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 40px 25px;
+    box-shadow: 0 0 30px rgba(255,255,255,0.08);
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#task {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1.4;
+}
+
+button {
+    margin-top: 30px;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    background: #ff9800;
+    color: white;
+    font-weight: bold;
+    transition: transform .2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.shuffle {
+    animation: pulse .1s infinite;
+}
+
+@keyframes pulse {
+    50% {
+        transform: scale(1.03);
     }
+}
+</style>
 
-    #task {
-      font-size: 2rem;
-      margin-top: 40px;
-    }
+<div class="container">
+    <h1>🍺 NFC Beerpong</h1>
 
-    button {
-      margin-top: 40px;
-      padding: 15px 25px;
-      font-size: 1.2rem;
-    }
-  </style>
-</head>
+    <div class="card">
+        <div id="task">Bereit?</div>
+    </div>
 
-<body>
+    <button onclick="loadTask()">
+        🎲 Aufgabe ziehen
+    </button>
+</div>
 
-  <h1>🍺 NFC Beerpong</h1>
+<script>
+let tasks = [
+    "Alle trinken!",
+    "2 Schlücke trinken",
+    "Wähle einen Spieler",
+    "Shot Challenge",
+    "Linker Nachbar trinkt"
+];
 
-  <div id="task">Lade Aufgabe...</div>
+function loadTask() {
+    const taskElement = document.getElementById("task");
 
-  <button onclick="loadTask()">Neue Aufgabe</button>
+    taskElement.classList.add("shuffle");
 
-  <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1FWVfPG2LB5BEzg2uAtNKdIzurzK7lGXqB9Emix3OVx0/gviz/tq?tqx=out:csv";
+    let count = 0;
 
-    let tasks = [];
+    const interval = setInterval(() => {
+        taskElement.textContent =
+            tasks[Math.floor(Math.random() * tasks.length)];
 
-    async function loadTasks() {
-      const res = await fetch(SHEET_URL);
-      const text = await res.text();
+        count++;
 
-      tasks = text
-        .split("\n")
-        .slice(1) // Kopfzeile raus
-        .map(row => row.replace(/"/g, "").trim())
-        .filter(Boolean);
-    }
+        if (count > 20) {
+            clearInterval(interval);
 
-    function loadTask() {
-      if (tasks.length === 0) return;
+            taskElement.classList.remove("shuffle");
 
-      const random = tasks[Math.floor(Math.random() * tasks.length)];
-      document.getElementById("task").innerText = random;
-    }
-
-    async function init() {
-      await loadTasks();
-      loadTask();
-    }
-
-    init();
-  </script>
-
-</body>
-</html>
+            taskElement.textContent =
+                tasks[Math.floor(Math.random() * tasks.length)];
+        }
+    }, 80);
+}
+</script>
