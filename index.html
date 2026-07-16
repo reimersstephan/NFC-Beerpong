@@ -97,6 +97,8 @@ const SHEET_URL =
 "https://docs.google.com/spreadsheets/d/1FWVfPG2LB5BEzg2uAtNKdIzurzK7lGXqB9Emix3OVx0/gviz/tq?tqx=out:csv";
 
 let tasks = [];
+let shuffledTasks = [];
+let currentIndex = 0;
 
 async function loadTasks() {
     try {
@@ -105,13 +107,14 @@ async function loadTasks() {
 
         tasks = csv
             .split("\n")
-            .slice(1) // Überschrift entfernen
+            .slice(1)
             .map(row => row.replace(/"/g, "").trim())
             .filter(Boolean);
 
         document.getElementById("status").textContent =
             `${tasks.length} Aufgaben geladen`;
 
+        shuffleTasks();
         loadTask();
 
     } catch (error) {
@@ -120,13 +123,35 @@ async function loadTasks() {
     }
 }
 
+function shuffleTasks() {
+    // Kopie der Aufgaben erzeugen
+    shuffledTasks = [...tasks];
+
+    // Fisher-Yates Shuffle
+    for (let i = shuffledTasks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledTasks[i], shuffledTasks[j]] =
+        [shuffledTasks[j], shuffledTasks[i]];
+    }
+
+    currentIndex = 0;
+}
+
 function loadTask() {
-    if (tasks.length === 0) return;
 
-    const randomTask =
-        tasks[Math.floor(Math.random() * tasks.length)];
+    if (shuffledTasks.length === 0)
+        return;
 
-    document.getElementById("task").textContent = randomTask;
+    // Wenn alle Aufgaben einmal gezeigt wurden,
+    // erneut mischen
+    if (currentIndex >= shuffledTasks.length) {
+        shuffleTasks();
+    }
+
+    document.getElementById("task").textContent =
+        shuffledTasks[currentIndex];
+
+    currentIndex++;
 }
 
 loadTasks();
